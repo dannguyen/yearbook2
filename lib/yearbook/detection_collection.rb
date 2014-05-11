@@ -1,41 +1,41 @@
+require 'delegate'
 require 'yearbook/detected_object'
 module Yearbook
-  class DetectionCollection < Array
+  class << self
+    def DetectionCollection(objs)
+      Yearbook::DetectionCollection.new(objs)
+    end
+  end
 
+  class DetectionCollection < SimpleDelegator
     # expects :parent_obj to be some kind of object with :width, :height
-    def initialize(objs, parent_obj=nil)
-      opts = parent_obj.nil? ? nil : {source_width: parent_obj.width, source_height: parent_obj.height}
-
+    def initialize(objs)
       a = Array(objs).map do |v|
-        Yearbook::DetectedObject.new(v, opts)
+        Yearbook::DetectedObject.new(v)
       end
 
       super(a)
     end
 
     def by_quality
-      self.sort{|x, y| y.quality <=> x.quality }
+      # this can't be good...
+      self.__setobj__(self.sort{|x, y| y.quality <=> x.quality })
+      self
     end
 
     # returns the object that seems most likely to be a good detection
     def best_candidate
-      by_quality.first
+      self.by_quality.first
     end
-
-    # TODO: left to right, top to bottom
-    def lrtb
-      self
-    end
-
-
-
 
     alias_method :best, :best_candidate
+
+    # # TODO: left to right, top to bottom
+    # def lrtb
+    #   self
+    # end
+
 
   end
 end
 
-
-def DetectionCollection(*args)
-  Yearbook::DetectionCollection.new(*args)
-end

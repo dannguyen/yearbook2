@@ -6,16 +6,14 @@ module Yearbook
 #    option :min_width, :type => :numeric, :aliases => '--mw'
     option :count, :type => :boolean, :aliases => '-c', :default => false, :banner => 'Provide just a count'
     def find(*path)
+      detector = Yearbook::Detector.new
       Dir.glob(path).each do |image_filename|
-        image_file = Yearbook::Image.new(image_filename)
-        faces = Yearbook::Detector.new.find(image_file)
+        job = Yearbook::Job.new(image_filename, classifier: detector)
 
         if options[:count] == true
-          say "#{image_filename}\t#{faces.count}"
+          say job.talk(:count)
         else
-          faces.each do |face|
-            say image_filename << "\t" << face.to_h.map{|(k,v)| "#{k}: #{v}"}.join("\t")
-          end
+          say job.talk
         end
       end
     end
@@ -25,20 +23,11 @@ module Yearbook
     option :best, :type => :boolean, :aliases => '-b', :default => false, :banner => 'Just print out the first face'
     option :count, :type => :numeric, :aliases => '-c', :banner => 'The max number of faces, by quality, to print out'
     def print(*path)
+      detector = Yearbook::Detector.new
       Dir.glob(path).each do |image_filename|
-        image_file = Yearbook::Image.new(image_filename)
-        faces = Yearbook::Detector.new.find(image_file).by_quality
-
-        if options[:best] == true
-          face_count = 1
-        else
-          face_count = options[:count].to_i
-        end
-
-        faces[0..face_count-1].each do |face|
-          face_name = "#{image_file.basename}.#{face.to_meta_name}#{image_file.extname}"
+        job = Yearbook::Job.new(image_filename, classifier: detector)
+        job.print(options) do |face_name, face|
           say face_name
-          image_file.cut_out(face).print face_name
         end
       end
     end
