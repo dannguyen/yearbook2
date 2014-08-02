@@ -1,7 +1,6 @@
 require 'thor'
 module Yearbook
   class CLI < Thor
-
     desc "find PATH", "find faces in files"
 #    option :min_width, :type => :numeric, :aliases => '--mw'
     option :count, :type => :boolean, :aliases => '-c', :default => false, :banner => 'Provide just a count'
@@ -31,7 +30,6 @@ module Yearbook
         end
       end
     end
-
   end
 
 
@@ -47,6 +45,34 @@ module Yearbook
   #                           --circle
   #                           --best --csv
   #                           --face-data="faces.xml" --eyes-data="eyes.xml"
-
-
 end
+
+
+
+=begin
+Notes:
+------
+
+- config
+  - set <file>
+  - show
+
+- detect <file>
+  --type  :face
+  --json
+    --nested
+
+- crop
+  -- feather
+  -- resize
+  -- fit
+  -- room [50px,50px,10px,9px]
+
+- redact
+  - cut
+  - blur
+  - replace
+
+
+
+=end
